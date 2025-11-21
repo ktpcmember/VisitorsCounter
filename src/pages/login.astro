@@ -1,0 +1,59 @@
+<html>
+  <head>
+    <title>login</title>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <h2>部員ログイン</h2>
+    <input id="pw" type="password" placeholder="Password" />
+    <button id="loginBtn">Login</button>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCcXRwnvWSqc9tlUXZKUYaw44B3HhM9VH4",
+        authDomain: "ktpclauncher.firebaseapp.com",
+        projectId: "ktpclauncher",
+        storageBucket: "ktpclauncher.firebasestorage.app",
+        messagingSenderId: "406353305836",
+        appId: "1:406353305836:web:12e811e9eb39b30ce085c9",
+        measurementId: "G-N13RRHHDKF",
+      };
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      
+      // SHA-256 ハッシュ関数
+      async function sha256(message) {
+        const msgUint8 = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest("SHA-256", msgUint8);
+        return Array.from(new Uint8Array(hashBuffer))
+          .map((b) => b.toString(16).padStart(2, "0"))
+          .join("");
+      }
+
+      const loginBtn = document.getElementById("loginBtn");
+      loginBtn.onclick = async () => {
+        const pw = document.getElementById("pw").value;
+        const inputHash = await sha256(pw);
+
+        // Firestore から正しいハッシュを取得
+        const snap = await getDoc(doc(db, "auth", "password"));
+        const correctHash = snap.data().hashed;
+
+        if (inputHash === correctHash) {
+          localStorage.setItem("club_logged_in", "1");
+          window.location.href = "/counter";
+        } else {
+          alert("Password incorrect");
+        }
+      };
+    </script>
+  </body>
+</html>

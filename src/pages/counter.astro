@@ -1,0 +1,54 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Counter</title>
+  </head>
+  <body>
+    <h2>編集者ページ</h2>
+    <button id="addBtn">＋１</button>
+    <p id="info">読み込み中…</p>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+        updateDoc,
+        increment,
+      } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCcXRwnvWSqc9tlUXZKUYaw44B3HhM9VH4",
+        authDomain: "ktpclauncher.firebaseapp.com",
+        projectId: "ktpclauncher",
+        storageBucket: "ktpclauncher.firebasestorage.app",
+        messagingSenderId: "406353305836",
+        appId: "1:406353305836:web:12e811e9eb39b30ce085c9",
+        measurementId: "G-N13RRHHDKF",
+      };
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      // ログイン確認
+      if (localStorage.getItem("club_logged_in") !== "1") {
+        window.location.href = "/login";
+      }
+
+      const ref = doc(db, "visitors", "UserCounter");
+
+      async function load() {
+        const snap = await getDoc(ref);
+        document.getElementById("info").innerText =
+          "現在のカウント: " + snap.data().count;
+      }
+
+      load();
+
+      document.getElementById("addBtn").onclick = async () => {
+        await updateDoc(ref, { count: increment(1) });
+        load();
+      };
+    </script>
+  </body>
+</html>
